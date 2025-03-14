@@ -1,6 +1,8 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <assert.h>
+#include <ctype.h>
+#include <stdio.h>
 
 #include "util.h"
 
@@ -15,4 +17,18 @@ utf8_char decode_utf8(uint8_t *send_buffer, size_t send_pos, size_t send_buffer_
     next_char.data = send_buffer + send_pos;
     next_char.length = byte_len;
     return next_char;
+}
+
+void trim(void **str, size_t* length) {
+    char *begin = (char*)*str;
+    char *end = begin + *length - 1;
+    while (begin <= end && isspace(*begin)) {
+        begin++;
+        (*length)--;
+    }
+    while (end >= begin && isspace(*end)) {
+        end--;
+        (*length)--;
+    }
+    *str = begin;
 }
