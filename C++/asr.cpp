@@ -7,7 +7,22 @@
 #include <string>
 #include <thread>
 
-extern void add_word(const std::string & word);
+
+Language LANG       = ZH_CN;  // 语言设置（"zh" 或 "en"）
+size_t   SEND_DELAY = 300;
+size_t   PORT       = 8080;
+
+// 中文逗号的字节码
+static std::vector<uint8_t> Chinese_comma = { static_cast<uint8_t>(0xEF), static_cast<uint8_t>(0xBC),
+                                              static_cast<uint8_t>(0x8C) };
+static std::vector<uint8_t> English_comma = { static_cast<uint8_t>(',') };
+
+// 中文句号的字节码
+static std::vector<uint8_t> Chinese_period = { static_cast<uint8_t>(0xE3), static_cast<uint8_t>(0x80),
+                                               static_cast<uint8_t>(0x82) };
+static std::vector<uint8_t> English_period = { static_cast<uint8_t>('.') };
+
+const static size_t lookup[] = { 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 2, 2, 3, 4 };
 
 static std::vector<uint8_t> record_buffer;  // 存储所有接收到的文本
 static std::vector<uint8_t> send_buffer;    // 用于处理和提取单词的缓冲区
@@ -18,17 +33,17 @@ static size_t send_pos          = 0;        // 已处理的发送缓冲区位置
 
 static size_t sentence_len = (size_t) -1;   // 上次接收到的句子长度（-1 表示新句子）
 
-static Language   LANG       = ZH_CN;       // 语言设置（"zh" 或 "en"）
 static SendStatus sendStatus = WAITING;     // ASR序列投送状态
 
 void send_word(std::string word) {
     printf("%s\n", word.c_str());
+    // add_word(word);
 }
 
 // 处理单词提取的函数（逐词处理，确保完整单词）
 void * get_word_thread_func() {
     while (sendStatus != SEND_COMPLETED) {
-        usleep(SEND_DELAY);
+        std::this_thread::sleep_for(std::chrono::milliseconds(SEND_DELAY));
         if (send_pos < send_buffer_len) {
             switch (LANG) {
                 case ZH_CN:
@@ -201,39 +216,6 @@ static struct lws_protocols protocols[] = {
     { NULL,        NULL,               0, 0 }  // 结束标志
 };
 
-int asr() {
-    // 配置 libwebsockets 上下文
-    struct lws_context_creation_info info{};
-    memset(&info, 0, sizeof(info));
-    info.port      = PORT;       // 监听端口
-    info.protocols = protocols;  // 协议列表
-    info.gid       = -1;         // 默认组 ID
-    info.uid       = -1;         // 默认用户 ID
-
-    // 创建 WebSocket 上下文
-    struct lws_context * context = lws_create_context(&info);
-    if (!context) {
-        std::cerr << "libwebsockets上下文创建失败" << std::endl;
-        return 1;
-    }
-
-    // 创建word发送线程
-    std::thread print_thread(get_word_thread_func);
-
-    std::cout << "WebSocket服务器启动，监听端口: 8080" << std::endl;
-
-    // 主事件循环
-    while (sendStatus != SEND_COMPLETED) {
-        lws_service(context, 50);  // 50ms 超时
-    }
-
-    if (print_thread.joinable()) {
-        print_thread.join();
-    }
-    lws_context_destroy(context);
-    return 0;
-}
-
 int main() {
     // 配置 libwebsockets 上下文
     struct lws_context_creation_info info{};
@@ -251,7 +233,7 @@ int main() {
     }
 
     // 创建word发送线程
-    std::thread print_thread(get_word_thread_func);
+    std::thread split_word_thread(get_word_thread_func);
 
     std::cout << "WebSocket服务器启动，监听端口: 8080" << std::endl;
 
@@ -260,8 +242,8 @@ int main() {
         lws_service(context, 50);  // 50ms 超时
     }
 
-    if (print_thread.joinable()) {
-        print_thread.join();
+    if (split_word_thread.joinable()) {
+        split_word_thread.join();
     }
     lws_context_destroy(context);
     return 0;
