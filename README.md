@@ -22,8 +22,10 @@ sudo apt update
 sudo apt install libwebsockets-dev
 ```
 
-启动服务端：
+启动**C服务端**：
 ```shell
+cd C/
+
 # 默认启动设置
 # 默认通信端口 8080
 # 默认发送频率 0.3s/token
@@ -43,7 +45,31 @@ make
 ./server --lang en
 ./server --lang zh 
 ```
-该服务端在收到文本后，将以固定频率向外打印/发送字符，见`server.c send_token`
+启动**C++服务端**：
+```shell
+cd C++/
+
+# 默认启动设置
+# 默认通信端口 8080
+# 默认发送频率 0.3s/token
+# 默认解析语言 中文
+make run
+
+# 自定义token投送时间，单位s
+make
+./server --send_delay 0.5
+
+# 自定义通信端口，谨慎使用，需要与前端框架同步
+make
+./server --port 1234
+
+# 自定义解析语言，请与前端框架同步
+make
+./server --lang en
+./server --lang zh 
+```
+
+服务端在收到文本后，将以固定频率向外打印/发送字符，见`server.c send_token`
 若收到`<eos>`，视作特殊token，直接打印/发送
 
 ### 注意事项
@@ -56,5 +82,7 @@ make
 
 ## TODO
 
-- [] 扩展对Windows平台的兼容性，使用支持Windows平台的线程库
-- [] 扩展对端侧ASR模型的支持
+- [x] 扩展对Windows平台的兼容性，使用支持Windows平台的线程库
+    - C++实现中，`#include <thread>`，是支持Windows平台的线程库
+- [ ] C++实现中，目前存在少量内存泄漏问题
+- [ ] 扩展对端侧ASR模型的支持
