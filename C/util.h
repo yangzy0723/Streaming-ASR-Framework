@@ -1,5 +1,7 @@
 #define UNUSED(x) (void)(x)
 
+#define PERIOD(s) ((s) == "." || (s) == "。")
+
 #define WORD_LENGTH 128
 
 static const char Chinese_comma[] = "，";

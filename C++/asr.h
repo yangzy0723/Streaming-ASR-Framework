@@ -6,6 +6,8 @@
 
 #define UNUSED(x) (void) (x)
 
+#define PERIOD(s) ((s) == "." || (s) == "。")
+
 #define CONTEXT_SIZE 4096
 
 enum SendStatus { SEND_IN_PROGRESS, WAITING, SEND_COMPLETED };
@@ -19,7 +21,3 @@ typedef struct {
 
 typedef utf8_char Chinese_word;
 typedef char      English_word_head;
-
-// 解析utf-8字符
-static utf8_char decode_utf8();
-

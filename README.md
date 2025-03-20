@@ -12,7 +12,7 @@ python -m http.server 8000
 
 ![](figs/1.jpg)
 
-点击提交结果后将向服务端发送序列`<eos>`
+点击提交结果后将向服务端发送序列`<eof>`
 
 ### 开启字符处理后端
 
@@ -34,16 +34,16 @@ make run
 
 # 自定义token投送时间，单位s
 make
-./server --send_delay 0.5
+./asr --send_delay 0.5
 
 # 自定义通信端口，谨慎使用，需要与前端框架同步
 make
-./server --port 1234
+./asr --port 1234
 
 # 自定义解析语言，请与前端框架同步
 make
-./server --lang en
-./server --lang zh 
+./asr --lang en
+./asr --lang zh 
 ```
 启动**C++服务端**：
 ```shell
@@ -57,20 +57,20 @@ make run
 
 # 自定义token投送时间，单位s
 make
-./server --send_delay 0.5
+./asr --send_delay 0.5
 
 # 自定义通信端口，谨慎使用，需要与前端框架同步
 make
-./server --port 1234
+./asr --port 1234
 
 # 自定义解析语言，请与前端框架同步
 make
-./server --lang en
-./server --lang zh 
+./asr --lang en
+./asr --lang zh 
 ```
 
-服务端在收到文本后，将以固定频率向外打印/发送字符，见`server.c send_token`
-若收到`<eos>`，视作特殊token，直接打印/发送
+服务端在收到文本后，将以固定频率向外打印/发送字符，见`C/asr.c send_token`、`C++/asr.cpp send_word`
+若收到`<eos>、<eof>`，视作特殊token，直接打印/发送
 
 ### 注意事项
 

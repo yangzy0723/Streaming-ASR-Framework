@@ -3,10 +3,10 @@ CFLAGS = -Wall -g
 LIBS = -lwebsockets
 INCLUDES = -I./
 
-SRCS = util.c server.c
-OBJS = util.o server.o
+SRCS = util.c asr.c
+OBJS = util.o asr.o
 
-TARGET = server
+TARGET = asr
 
 # 默认目标
 all: $(TARGET)
@@ -16,8 +16,8 @@ $(TARGET): $(OBJS)
 
 util.o: util.c util.h
 	$(CC) $(CFLAGS) $(INCLUDES) -c util.c
-server.o: server.c util.h
-	$(CC) $(CFLAGS) $(INCLUDES) -c server.c
+asr.o: asr.c util.h
+	$(CC) $(CFLAGS) $(INCLUDES) -c asr.c
 
 
 run: $(TARGET)

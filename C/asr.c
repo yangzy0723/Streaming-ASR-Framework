@@ -50,7 +50,7 @@ void *get_word_thread_func(void *arg)
                 // deal with "<eos>"
                 if (*(char *)next_word.data == '<' && send_pos + 4 < send_buffer_len)
                 {
-                    if (strncmp((char *)next_word.data, "<eos>", 5) == 0)
+                    if (strncmp((char *)next_word.data, "<eof>", 5) == 0)
                         next_word.length = 5;
                 }
                 send_pos += next_word.length;
@@ -67,7 +67,7 @@ void *get_word_thread_func(void *arg)
                     send_pos += word_len;
                     break;
                 case '<':
-                    if (send_pos + 4 < send_buffer_len && strncmp(next_word, "<eos>", 5) == 0)
+                    if (send_pos + 4 < send_buffer_len && strncmp(next_word, "<eof>", 5) == 0)
                     {
                         word_len = 5;
                         send_token((uint8_t *)next_word, word_len);
